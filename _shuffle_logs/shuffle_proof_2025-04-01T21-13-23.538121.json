@@ -1,0 +1,16 @@
+{
+  "timestamp": "2025-04-01T21-13-23.538121",
+  "report_count": 1,
+  "verification_result": true,
+  "verification_data": {
+    "original_commitment_count": 1,
+    "shuffled_commitment_count": 1,
+    "proofs": {
+      "permutation": [
+        0
+      ],
+      "sum_hash_before": "f578e51679c53cd3764ce422c223fe340e4e8e3bfa8c0a205e3c88ebe83c573b",
+      "sum_hash_after": "f578e51679c53cd3764ce422c223fe340e4e8e3bfa8c0a205e3c88ebe83c573b"
+    }
+  }
+}
