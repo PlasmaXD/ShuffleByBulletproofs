@@ -107,11 +107,11 @@ sequenceDiagram
 
 
 
-<!-- 以下、Mermaid図のレンダリングを有効にするためのスクリプト 
 <script type="module">
-  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  mermaid.initialize({ startOnLoad: true });
-  // VS CodeのMarkdownプレビュー更新時に再描画を促す
-  window.addEventListener('vscode.markdown.updateContent', () => { mermaid.init(); });
+import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.esm.min.mjs';
+mermaid.initialize({ 
+  startOnLoad: true,
+  theme: 'neutral',
+  fontSize: 14
+});
 </script>
--->
