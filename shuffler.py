@@ -1,5 +1,4 @@
-# shuffler.py に追加・修正する内容
-
+# shuffler.py 
 from flask import Flask, request, jsonify
 import requests
 import random
