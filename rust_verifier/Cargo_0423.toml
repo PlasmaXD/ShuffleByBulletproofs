@@ -1,0 +1,7 @@
+[workspace]
+resolver = "2"
+members = [
+  "crates/commitment",
+  "crates/histogram_zkp",
+  "crates/cli",
+]
