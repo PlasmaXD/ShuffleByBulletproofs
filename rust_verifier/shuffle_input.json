@@ -1,0 +1,20 @@
+{
+    "reports": [
+      {
+        "user_id": "user1",
+        "timestamp": "2025-04-24T03:30:00Z",
+        "data": "sample_data_1"
+      },
+      {
+        "user_id": "user2",
+        "timestamp": "2025-04-24T03:31:00Z",
+        "data": "sample_data_2"
+      }
+    ],
+    "commitments": [
+      "b8b7b5fa08f2ae872d9646c4c572fce33758420560de3ea6488b7ad32b20de5d",
+      "4e4bee598ad251e8ac1e925134a86e5190a1607e32c45ffb041a987f96768e30"
+    ],
+    "permutation": [1, 0]
+  }
+  
