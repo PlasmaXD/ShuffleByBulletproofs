@@ -128,9 +128,9 @@ $$
 
 | # | シャッフラーに入るもの | 具体例 | 目的 |
 |---|----------------------|--------|-------|
-|1|**乱数化済みレポート \(y_i\)**|RAPPOR のビット列、GRR で変換した整数など|DPノイズ込みの「公開してよい値」|  
-|2|**ペデンコミットメント \(C_i=r_iH+y_iG\)**|各ビット（0/1）や整数値に対し個別に作成|後段でシャッフル正当性や範囲証明をZKPで検証するため|  
-|3|**（任意）暗号化ペイロード**|\( \text{Enc}_{\text{agg}}(y_i) \) など|集計サーバだけが復号できるようにし、シャッフラーには中身を見せない|
+|1|**乱数化済みレポート $y_i$**|RAPPOR のビット列、GRR で変換した整数など|DPノイズ込みの「公開してよい値」|  
+|2|**ペデンコミットメント $C_i=r_iH+y_iG$**|各ビット（0/1）や整数値に対し個別に作成|後段でシャッフル正当性や範囲証明をZKPで検証するため|  
+|3|**（任意）暗号化ペイロード**| $Enc_{\mathrm{agg}}(y_i)$|集計サーバだけが復号できるようにし、シャッフラーには中身を見せない|
 
 ---
 
@@ -139,7 +139,6 @@ $$
 1. **ブラウザでローカル乱数化**  
    - 元データ: ユーザが訪れた URL ID = 42  
    - RAPPOR の「Unary Encoding＋ランダム化」で 100 bit のベクトル \(y_i\) を生成  
-     （真ビット 1 本＋ノイズビット多数）  ([[PDF] RAPPOR: Randomized Aggregatable Privacy-Preserving Ordinal ...](https://research.google.com/pubs/archive/42852.pdf?utm_source=chatgpt.com))  
 
 ---
 2. **各ビットをコミット**  
@@ -161,7 +160,8 @@ $$
    2. **再ランダム化**：各コミットメントに追加乱数 $r'_{j}$ を加えて  
       $C'_{j}=C_{\pi(j)}+r'_{j}H$  
    3. 置換と $r'_{j}$ が正しく行われたことを Bulletproofs の集約 ZKP で証明  
-      （合計コミットメントが不変であることを示す）  ([[PDF] Improving Utility and Security of the Shuffler-based Differential Privacy](https://vldb.org/pvldb/vol13/p3545-wang.pdf?utm_source=chatgpt.com), [[PDF] PROCHLO: Strong Privacy for Analytics in the Crowd](https://research.google.com/pubs/archive/46411.pdf?utm_source=chatgpt.com))  
+      （合計コミットメントが不変であることを示す）
+        <!-- ([[PDF] Improving Utility and Security of the Shuffler-based Differential Privacy](https://vldb.org/pvldb/vol13/p3545-wang.pdf?utm_source=chatgpt.com), [[PDF] PROCHLO: Strong Privacy for Analytics in the Crowd](https://research.google.com/pubs/archive/46411.pdf?utm_source=chatgpt.com))   -->
 5. **集計サーバ**  
    - 受け取った $\{C'_{j}\}$ を合計してヒストグラムを算出  
    - 必要に応じて復号してノイズ付き統計を公開
@@ -178,15 +178,15 @@ $$
   - ブラウザ→シャッフラー間：データ値秘匿（DP ノイズ入りでも念のため）  
   - シャッフラー→集計サーバ間：再識別リスクを最小化  
   という二重ガードが張れます。  
-
+<!-- 
 この構成は Google の PROCHLO や Chrome Privacy Sandbox の
-Private Aggregation API で採られている一般的な設計方針です。  ([On the Differential Privacy and Interactivity of Privacy Sandbox Reports](https://arxiv.org/html/2412.16916v1?utm_source=chatgpt.com), [[PDF] PROCHLO: Strong Privacy for Analytics in the Crowd](https://research.google.com/pubs/archive/46411.pdf?utm_source=chatgpt.com))
+Private Aggregation API で採られている一般的な設計方針です。  ([On the Differential Privacy and Interactivity of Privacy Sandbox Reports](https://arxiv.org/html/2412.16916v1?utm_source=chatgpt.com), [[PDF] PROCHLO: Strong Privacy for Analytics in the Crowd](https://research.google.com/pubs/archive/46411.pdf?utm_source=chatgpt.com)) -->
 
 ---
 
 #### まとめ
-- **値 \(y_i\)** は「ブラウザで既に DP ノイズを混ぜたレポート」  
-- **コミットメント \(C_i\)** はその値を隠したまま整合性を持たせる暗号ラッパ  
+- **値 $y_i$** は「ブラウザで既に DP ノイズを混ぜたレポート」  
+- **コミットメント $C_i$** はその値を隠したまま整合性を持たせる暗号ラッパ  
 - **シャッフラー**は「順序を壊す＋再ランダム化＋ZKP で証明」という役だけを果たし、  
   元データもユーザ ID も見えない。  
 以上が、ブラウザ乱数化型 DP システムでシャッフラーに渡す“中身”です。
