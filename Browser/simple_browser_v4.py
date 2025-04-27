@@ -91,6 +91,7 @@ class SimpleBrowser(QWidget):
         # 初期ページ
         self.url_bar.setText("https://www.google.com")
         self.load_url()
+        self.visited_urls = [] 
 
     def load_url(self):
         url_text = self.url_bar.text().strip()

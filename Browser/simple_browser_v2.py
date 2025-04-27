@@ -6,12 +6,15 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtCore import QUrl
+from cms_ldp import CMS_LDP_Client, CMS_LDP_Aggregator
 
 HISTORY_FILE = "history.txt"
 
 class SimpleBrowser(QWidget):
     def __init__(self):
         super().__init__()
+        
+        
         self.setWindowTitle("SimpleBrowser with History")
         self.resize(1024, 768)
 
@@ -33,7 +36,12 @@ class SimpleBrowser(QWidget):
         nav_layout.addWidget(show_history_btn)
 
         main_layout.addLayout(nav_layout)
-
+        # CMS+LDP 用のクライアント／サーバー（アグリゲータ）を生成
+        WIDTH, DEPTH = 128, 4
+        P, Q = 0.5, 0.75
+        self.lpd_client     = CMS_LDP_Client(width=WIDTH, depth=DEPTH, prob_p=P, prob_q=Q)
+        self.lpd_aggregator = CMS_LDP_Aggregator(width=WIDTH, depth=DEPTH, prob_p=P, prob_q=Q)
+        # ─── ここまで追加 ───
         # Web表示エリア
         self.web_view = QWebEngineView(self)
         main_layout.addWidget(self.web_view)
@@ -64,9 +72,13 @@ class SimpleBrowser(QWidget):
     def on_url_changed(self, qurl):
         """ページ遷移時にURLバーを更新＆履歴追加"""
         url = qurl.toString()
-        # URLバーを書き換え
+        # ① まずアドレスバーを更新
         self.url_bar.setText(url)
+        # CMS+LDP 用に URL を privatize → aggregator に ingest
+        rec = self.lpd_client.privatize(url)
+        self.lpd_aggregator.ingest(rec)
 
+        # ② 既存の履歴保存処理
         # 履歴追加
         now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         entry = f"{now} {url}"
