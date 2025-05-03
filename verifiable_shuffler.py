@@ -29,10 +29,22 @@ class VerifiableShuffler:
         self.permutation = []
         self.proofs = []
         # self.rust_binary_path = os.path.join(os.path.dirname(__file__), "shuffle_verifier")
-        self.rust_binary_path = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), 
-        "rust_verifier/target/release/shuffle_verifier"
-    )    
+        # self.rust_binary_path = os.path.join(
+        # os.path.dirname(os.path.abspath(__file__)), 
+        # "rust_verifier/target/release/shuffle_verifier")    
+        # Rust 実装バイナリのパスを Debug/Release から自動選択
+        base = os.path.dirname(os.path.abspath(__file__))
+        release = os.path.join(base, "../rust_verifier/target/release/shuffle_verifier")
+        debug   = os.path.join(base, "../rust_verifier/target/debug/shuffle_verifier")
+        if os.path.exists(release):
+            self.rust_binary_path = release
+        elif os.path.exists(debug):
+            self.rust_binary_path = debug
+        else:
+            # ビルドされていなければフォールバックで Python 実装を強制
+            self.use_rust_implementation = False
+            self.rust_binary_path = None
+        
     def commit_reports(self, reports):
         """
         レポートのリストに対するコミットメントを生成

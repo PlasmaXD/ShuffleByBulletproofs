@@ -1,0 +1,55 @@
+--- simple_browser_v5.py
++++ simple_browser_v5.py
+
+@@ def on_url_changed(self, qurl):
+-        # 生URL
+-        with open(HISTORY_FILE,'a',encoding='utf-8') as f:
+-            f.write(f"{now} {url}\n")
++        # (A) 生 URL を history.txt に追記
++        with open(HISTORY_FILE, 'a', encoding='utf-8') as f:
++            f.write(f"{now} {url}\n")
++        # (B) RAPPOR エンコード結果を encoded_history.txt に追記
++        dp = encode_url_rappor(url)
++        with open(ENC_FILE, 'a', encoding='utf-8') as f:
++            f.write(f"{now} cohort={dp['cohort']} irr={dp['irr']}\n")
+
+@@ def on_commit(self):
+-        reports=[]
+-        if os.path.exists(ENC_FILE):
+-            with open(ENC_FILE,'r',encoding='utf-8') as f:
+-                for line in f:
+-                    parts=line.strip().split(' ',2)
+-                    if len(parts)==3:
+-                        c,i=parts[2].split()
+-                        reports.append({})
++        reports = []
++        if os.path.exists(ENC_FILE):
++            with open(ENC_FILE, 'r', encoding='utf-8') as f:
++                for line in f:
++                    parts = line.strip().split(' ', 2)
++                    if len(parts) == 3:
++                        c_part, i_part = parts[2].split()
++                        # cohort/irr を parse（必要に応じて利用）
++                        cohort = int(c_part.split('=')[1])
++                        irr    = int(i_part.split('=')[1])
++                        reports.append({})
+
+@@ def on_aggregate(self):
++        # 誤差指標を計算
++        errors = [abs(e - t) for e, t in zip(est_cnt, true_vals)]
++        mae   = np.mean(errors)
++        mape  = np.mean([err/t for err, t in zip(errors, true_vals) if t>0])
++        # 結果ポップアップ
++        text = ''.join(f"{u}: 推定={e:.1f}, 真={t}\n"
++                       for u, e, t in zip(urls, est_cnt, true_vals))
++        text += f"\nMAE={mae:.2f}, MAPE={mape*100:.2f}%"
++        QMessageBox.information(self, '集計評価', text)
++        # グラフ表示
++        x = np.arange(len(urls))
++        plt.figure()
++        plt.bar(x-0.2, true_vals, 0.4, label='True')
++        plt.bar(x+0.2, est_cnt,   0.4, label='Estimate')
++        plt.xticks(x, urls, rotation=45, ha='right')
++        plt.legend()
++        plt.tight_layout()
++        plt.show()

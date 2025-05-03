@@ -2,6 +2,11 @@ import sys
 import os
 import random
 from datetime import datetime
+from collections import Counter
+
+import numpy as np
+import matplotlib.pyplot as plt
+
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QLineEdit, QVBoxLayout, QHBoxLayout,
     QPushButton, QListWidget, QMessageBox
@@ -9,7 +14,12 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtCore import QUrl
 
-import rappor  # 同一フォルダに置いた RAPPOR 実装
+# プロジェクト構成に合わせてパスを追加
+base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if base_dir not in sys.path:
+    sys.path.append(base_dir)
+
+import rappor  # 同一フォルダにおいた RAPPOR 実装
 from cms_ldp import CMS_LDP_Client, CMS_LDP_Aggregator
 from verifiable_shuffler import VerifiableShuffler
 
@@ -31,7 +41,8 @@ def encode_url_rappor(url: str, cohort: int = None) -> dict:
     irr_value = encoder.encode(url.encode('utf-8'))
     return {'cohort': cohort, 'irr': irr_value}
 
-HISTORY_FILE = "history.txt"
+HISTORY_FILE     = "history_dummy.txt"
+ENC_HISTORY_FILE = "encoded_history_dummy.txt"
 
 class SimpleBrowser(QWidget):
     def __init__(self):
@@ -97,7 +108,7 @@ class SimpleBrowser(QWidget):
         self.web_view.urlChanged.connect(self.on_url_changed)
         self.web_view.loadFinished.connect(self.update_nav_buttons)
 
-        # 履歴リスト
+        # GUI 履歴リスト
         self.history = []
         self.history_list = QListWidget(self)
         self.history_list.hide()
@@ -105,7 +116,7 @@ class SimpleBrowser(QWidget):
         main_layout.addWidget(self.history_list)
 
         # 履歴ファイル読み込み
-        self.load_history_from_file()
+        self.load_history_files()
 
         # 初期ページ
         self.url_bar.setText("https://www.google.com")
@@ -119,19 +130,25 @@ class SimpleBrowser(QWidget):
 
     def on_url_changed(self, qurl):
         url = qurl.toString()
-        self.url_bar.setText(url)
-        # RAPPOR エンコード＆保存
-        dp = encode_url_rappor(url)
         now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        entry = f"{now} cohort={dp['cohort']} irr={dp['irr']}"
-        if not self.history or self.history[-1] != entry:
-            self.history.append(entry)
-            self.history_list.addItem(entry)
-            with open(HISTORY_FILE, "a", encoding="utf-8") as f:
-                f.write(entry + "\n")
-        # LDP(CMS) ingest
+
+        # (A) 生の URL を history.txt に追記
+        with open(HISTORY_FILE, "a", encoding="utf-8") as f:
+            f.write(f"{now} {url}\n")
+
+        # (B) RAPPOR で encode した結果を encoded_history.txt に追記
+        dp = encode_url_rappor(url)
+        with open(ENC_HISTORY_FILE, "a", encoding="utf-8") as f:
+            f.write(f"{now} cohort={dp['cohort']} irr={dp['irr']}\n")
+
+        # (C) CMS＋LDP ingest はこれまでどおり URL で
         rec = self.lpd_client.privatize(url)
         self.lpd_aggregator.ingest(rec)
+
+        # GUI 上の履歴リストにも生 URL を追加
+        entry = f"{now} {url}"
+        self.history.append(entry)
+        self.history_list.addItem(entry)
 
     def update_nav_buttons(self):
         self.back_btn.setEnabled(self.web_view.history().canGoBack())
@@ -158,38 +175,44 @@ class SimpleBrowser(QWidget):
             self.url_bar.setText(url)
             self.load_url()
 
-    def load_history_from_file(self):
-        if not os.path.exists(HISTORY_FILE):
-            return
-        with open(HISTORY_FILE, 'r', encoding='utf-8') as f:
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
-                parts = line.split(' ', 2)
-                if len(parts) < 3:
-                    continue
-                self.history.append(line)
-                self.history_list.addItem(line)
+    def load_history_files(self):
+        # history.txt 読み込み
+        if os.path.exists(HISTORY_FILE):
+            with open(HISTORY_FILE, 'r', encoding='utf-8') as f:
+                for line in f:
+                    entry = line.strip()
+                    if not entry: continue
+                    self.history.append(entry)
+                    self.history_list.addItem(entry)
+        # encoded_history.txt がなければ空ファイル作成
+        if not os.path.exists(ENC_HISTORY_FILE):
+            open(ENC_HISTORY_FILE, 'w', encoding='utf-8').close()
 
-    # ボタン処理
     def on_commit(self):
         reports = []
-        with open(HISTORY_FILE, 'r', encoding='utf-8') as f:
-            for line in f:
-                parts = line.strip().split(' ', 2)
-                if len(parts) == 3:
-                    reports.append({"url": parts[2]})
+        if os.path.exists(ENC_HISTORY_FILE):
+            with open(ENC_HISTORY_FILE, "r", encoding="utf-8") as f:
+                for line in f:
+                    parts = line.strip().split(" ", 2)
+                    if len(parts) != 3:
+                        continue
+                    # parts[2] は "cohort=xx irr=yyyy"
+                    c_part, i_part = parts[2].split()
+                    cohort = int(c_part.split("=")[1])
+                    irr    = int(i_part.split("=")[1])
+                    # Rust 実装では reports 中身は不要
+                    reports.append({})
         commitments = self.shuffler.commit_reports(reports)
         QMessageBox.information(self, "Commit", f"{len(commitments)} 件コミット生成")
 
     def on_shuffle(self):
         reports = []
-        with open(HISTORY_FILE, 'r', encoding='utf-8') as f:
-            for line in f:
-                parts = line.strip().split(' ', 2)
-                if len(parts) == 3:
-                    reports.append({"url": parts[2]})
+        if os.path.exists(HISTORY_FILE):
+            with open(HISTORY_FILE, 'r', encoding='utf-8') as f:
+                for line in f:
+                    parts = line.strip().split(' ', 2)
+                    if len(parts) == 3:
+                        reports.append({"url": parts[2]})
         self.shuffler.shuffle_commitments(reports)
         QMessageBox.information(self, "Shuffle", "レポートをシャッフルしました")
 
@@ -201,19 +224,51 @@ class SimpleBrowser(QWidget):
             QMessageBox.critical(self, "Verify", "シャッフル検証に失敗しました")
 
     def on_aggregate(self):
-        unique_urls = set()
-        with open(HISTORY_FILE, 'r', encoding='utf-8') as f:
-            for line in f:
-                parts = line.strip().split(' ', 2)
-                if len(parts) == 3:
-                    unique_urls.add(parts[2])
-                    rec = self.lpd_client.privatize(parts[2])
+        # １) スケッチをリセット（必要なら毎回新規集計できるように）
+        WIDTH, DEPTH = 128, 4
+        P, Q = 0.5, 0.75
+        self.lpd_aggregator = CMS_LDP_Aggregator(width=WIDTH, depth=DEPTH, prob_p=P, prob_q=Q)
+
+        # ２) ファイルから全アクセスを読み込んで ingest
+        true_cnt = Counter()
+        if os.path.exists(HISTORY_FILE):
+            with open(HISTORY_FILE, 'r', encoding='utf-8') as f:
+                for line in f:
+                    parts = line.strip().split(' ', 2)
+                    if len(parts) != 3:
+                        continue
+                    url = parts[2]
+                    true_cnt[url] += 1
+
+                    # ← **ここでスケッチにレコードを登録**
+                    rec = self.lpd_client.privatize(url)
                     self.lpd_aggregator.ingest(rec)
+
+        # ３) 真の出現回数と推定値を計算
+        urls      = list(true_cnt.keys())
+        true_vals = [true_cnt[u]                       for u in urls]
+        est_cnt   = [self.lpd_aggregator.estimate_url(u) for u in urls]
+
+        # ４) MAE / MAPE を計算・表示
+        errors = [abs(e - t) for e, t in zip(est_cnt, true_vals)]
+        mae  = np.mean(errors)
+        mape = np.mean([err/t for err, t in zip(errors, true_vals) if t > 0])
+
         text = ""
-        for url in unique_urls:
-            est = self.lpd_aggregator.estimate_url(url)
-            text += f"{url}: {est:.1f}\n"
-        QMessageBox.information(self, "集計結果", text)
+        for u, e, t in zip(urls, est_cnt, true_vals):
+            text += f"{u}: 推定={e:.1f}, 真={t}\n"
+        text += f"\nMAE={mae:.2f}, MAPE={mape*100:.2f}%"
+        QMessageBox.information(self, "集計結果と評価", text)
+
+        # ５) グラフ表示
+        x = np.arange(len(urls))
+        plt.figure()
+        plt.bar(x - 0.2, true_vals, 0.4, label='True')
+        plt.bar(x + 0.2, est_cnt,   0.4, label='Estimate')
+        plt.xticks(x, urls, rotation=45, ha='right')
+        plt.legend()
+        plt.tight_layout()
+        plt.show()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
