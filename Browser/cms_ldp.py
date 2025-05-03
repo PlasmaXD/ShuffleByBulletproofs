@@ -39,13 +39,12 @@ class CMS_LDP_Client:
         rec = []
         for i in range(self.d):
             col = self._hash(url, i)
-            # 本来のビット x = 1（このバケットだけ）
-            x = 1
-            # IRR: x=1 のとき 1 を出力する確率 q、0 を出す確率 1-q
-            # IRR: x=0 のとき 1 を出す確率 p、0 を出す確率 1-p
-            prob = self.q if x == 1 else self.p
-            b = 1 if random.random() < prob else 0
-            rec.append((i, col, b))
+            # "ワンホット" 全バケット分をランダム化
+            for j in range(self.w):
+                x = 1 if j == col else 0
+                prob = self.q if x == 1 else self.p
+                b = 1 if random.random() < prob else 0
+                rec.append((i, j, b))
         return rec
 
 
@@ -103,35 +102,75 @@ class CMS_LDP_Aggregator:
 
 
 if __name__ == "__main__":
-    # --- 動作例 ---
-    urls = [
-        "https://example.com/page1",
-        "https://example.com/page2",
-        "https://another-site.org/foo",
-        "https://example.com/page1",
-        "https://example.com/page1",
-    ]
+    # # --- 動作例 ---
+    # urls = [
+    #     "https://example.com/page1",
+    #     "https://example.com/page2",
+    #     "https://another-site.org/foo",
+    #     "https://example.com/page1",
+    #     "https://example.com/page1",
+    # ]
 
-    # クライアント／集計サーバー設定
+    # # クライアント／集計サーバー設定
+    # WIDTH, DEPTH = 128, 4
+    # P, Q = 0.5, 0.75
+
+    # client = CMS_LDP_Client(WIDTH, DEPTH, prob_p=P, prob_q=Q)
+    # aggregator = CMS_LDP_Aggregator(WIDTH, DEPTH, prob_p=P, prob_q=Q)
+
+    # # 各 URL についてクライアントで privatize → サーバーで ingest
+    # for url in urls:
+    #     rec = client.privatize(url)
+    #     aggregator.ingest(rec)
+
+    # # 推定結果表示
+    # for u in set(urls):
+    #     est = aggregator.estimate_url(u)
+    #     print(f"{u} の推定出現回数: {est:.1f}")
+
+    # # 実際の出現回数表示
+    # from collections import Counter
+    # cnt = Counter(urls)
+    # print("\n実際の出現回数")
+    # for u, c in cnt.items():
+    #     print(f"{u}: {c}")
+
+    # --- 各種パラメータ ---
     WIDTH, DEPTH = 128, 4
     P, Q = 0.5, 0.75
-
-    client = CMS_LDP_Client(WIDTH, DEPTH, prob_p=P, prob_q=Q)
+    # WIDTH, DEPTH = 128, 4
+    # P, Q = 0.0, 1.0   # p=0, q=1 とすると IRR のノイズが消え、正確にカウントできます
+    client     = CMS_LDP_Client(WIDTH, DEPTH, prob_p=P, prob_q=Q)
     aggregator = CMS_LDP_Aggregator(WIDTH, DEPTH, prob_p=P, prob_q=Q)
 
-    # 各 URL についてクライアントで privatize → サーバーで ingest
-    for url in urls:
+    # 1) 履歴ファイルから実際に訪れた URL を読み込む
+    visited_urls = []
+    with open('history.txt', 'r', encoding='utf-8') as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            # date, time, url に分割
+            parts = line.split(' ', 2)
+            if len(parts) < 3:
+                continue
+            url = parts[2]   # これで先頭のタイムスタンプ2つを飛ばし、純粋な URL 部分だけ取得
+            visited_urls.append(url)
+
+    # 2) CMS+LDP の ingest 処理
+    for url in visited_urls:
         rec = client.privatize(url)
         aggregator.ingest(rec)
 
-    # 推定結果表示
-    for u in set(urls):
-        est = aggregator.estimate_url(u)
-        print(f"{u} の推定出現回数: {est:.1f}")
+    # 3) 推定結果を出力（重複を除いて一度だけクエリ）
+    unique_urls = set(visited_urls)
+    for url in unique_urls:
+        est = aggregator.estimate_url(url)
+        print(f"{url} の推定出現回数: {est:.1f}")
 
-    # 実際の出現回数表示
+    # （オプション）実際のカウントも並べて確認
     from collections import Counter
-    cnt = Counter(urls)
+    cnt = Counter(visited_urls)
     print("\n実際の出現回数")
-    for u, c in cnt.items():
-        print(f"{u}: {c}")
+    for url, c in cnt.items():
+        print(f"{url}: {c}")
