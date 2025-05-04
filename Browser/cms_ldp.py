@@ -102,38 +102,6 @@ class CMS_LDP_Aggregator:
 
 
 if __name__ == "__main__":
-    # # --- 動作例 ---
-    # urls = [
-    #     "https://example.com/page1",
-    #     "https://example.com/page2",
-    #     "https://another-site.org/foo",
-    #     "https://example.com/page1",
-    #     "https://example.com/page1",
-    # ]
-
-    # # クライアント／集計サーバー設定
-    # WIDTH, DEPTH = 128, 4
-    # P, Q = 0.5, 0.75
-
-    # client = CMS_LDP_Client(WIDTH, DEPTH, prob_p=P, prob_q=Q)
-    # aggregator = CMS_LDP_Aggregator(WIDTH, DEPTH, prob_p=P, prob_q=Q)
-
-    # # 各 URL についてクライアントで privatize → サーバーで ingest
-    # for url in urls:
-    #     rec = client.privatize(url)
-    #     aggregator.ingest(rec)
-
-    # # 推定結果表示
-    # for u in set(urls):
-    #     est = aggregator.estimate_url(u)
-    #     print(f"{u} の推定出現回数: {est:.1f}")
-
-    # # 実際の出現回数表示
-    # from collections import Counter
-    # cnt = Counter(urls)
-    # print("\n実際の出現回数")
-    # for u, c in cnt.items():
-    #     print(f"{u}: {c}")
 
     # --- 各種パラメータ ---
     WIDTH, DEPTH = 128, 4

@@ -36,6 +36,8 @@ class VerifiableShuffler:
         base = os.path.dirname(os.path.abspath(__file__))
         release = os.path.join(base, "../rust_verifier/target/release/shuffle_verifier")
         debug   = os.path.join(base, "../rust_verifier/target/debug/shuffle_verifier")
+        # release = os.path.join(base, "../rust_verifier2/target/release/rust_verifier2")
+        # debug   = os.path.join(base, "../rust_verifier2/target/debug/rust_verifier2")
         if os.path.exists(release):
             self.rust_binary_path = release
         elif os.path.exists(debug):
