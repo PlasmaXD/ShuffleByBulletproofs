@@ -20,8 +20,21 @@
               "icon": "lucide-file",
               "title": "辞書"
             }
+          },
+          {
+            "id": "71238c90e9496b34",
+            "type": "leaf",
+            "state": {
+              "type": "release-notes",
+              "state": {
+                "currentVersion": "1.8.10"
+              },
+              "icon": "lucide-book-up",
+              "title": "Release Notes 1.8.10"
+            }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -168,8 +181,9 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "2f97798e0c853fe6",
+  "active": "71238c90e9496b34",
   "lastOpenFiles": [
+    "0516/VLDP.md",
     "0516/Rappor以外.md",
     "0516/2406.18940v2.pdf",
     "0516/ヒストグラム証明とシャッフル証明の違い.md",
