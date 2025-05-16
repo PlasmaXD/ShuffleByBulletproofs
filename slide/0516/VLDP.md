@@ -1,5 +1,8 @@
 VLDP（Verifiable Local Differential Privacy）のシャッフルモデルでは、クライアントが一度だけサーバーと対話して自身のランダムシードを認証済みコミットメントとして登録し、その後生成される各ローカルDPレポートに対して、**（1）入力の真正性**（input authenticity）と **（2）シャッフル後のレポートが単なる無作為置換であること**（verifiable shuffle）をゼロ知識証明で検証します。本方式により、**悪意あるクライアントやシャッフラーによる入力／出力操作攻撃**を防ぎつつ、**高いプライバシー増幅効果**（shuffle model DP）を維持できます ([arXiv][1], [arXiv][2])。
+ VLDP（Verifiable LDP）におけるシャッフルモデル
 
+* 最新研究では、シャッフルモデルDPを対象に「クライアントからサーバーへ送られる生データの認証」と「シャッフラーの正当なシャッフル動作」を一括で検証する効率的なプロトコルが提案されています ([arXiv][3], [arXiv][3])。
+* 実装では、クライアントが一度だけサーバーと対話し、以降はシャッフル証明付きのレポートを送信するだけで検証が完了します ([Cryptology ePrint Archive][4])。
 ## 仕組み
 
 ### システムモデル
@@ -114,3 +117,54 @@ VLDP（Verifiable Local Differential Privacy）のシャッフルモデルでは
 [8]: https://arxiv.org/html/2409.04026v1?utm_source=chatgpt.com "Efficient Fault-Tolerant Quantum Protocol for Differential Privacy in ..."
 [9]: https://petsymposium.org/popets/2025/popets-2025-0076.pdf?utm_source=chatgpt.com "[PDF] Efficient Verifiable Differential Privacy with Input Authenticity in the ..."
 [10]: https://ntnuopen.ntnu.no/ntnu-xmlui/bitstream/handle/11250/259169/637038_FULLTEXT01.pdf?isAllowed=y&sequence=1&utm_source=chatgpt.com "[PDF] Verifiable Shuffled Decryption - NTNU Open"
+
+
+
+```mermaid
+sequenceDiagram
+    participant Client as クライアント
+    participant Shuffler as シャッフラー
+    participant Server as サーバー（検証・集計）
+
+    %%――― セットアップフェーズ ―――
+    Note over Client,Server: トラステッドセットアップ
+    Client->>Server: ランダムシードのコミットメント登録\n（Commit(seed), 署名付き）
+    Server-->>Client: 公開パラメータ（コミット鍵, NIZK 鍵など）
+
+    %%――― レポート生成＆送信フェーズ ―――
+    Note over Client,Shuffler: 各クライアントごと
+    Client->>Client: LDP レンダマイズ Z = RAPPOR/Laplace(x, r)
+    Client->>Client: 入力真正性証明 π_auth = NIZK_{auth}(Z, seed)
+    Client->>Shuffler: {Z, π_auth}
+
+    %%――― シャッフル＆フォワードフェーズ ―――
+    Note over Shuffler,Server: 大量レポートをまとめて処理
+    Shuffler->>Shuffler: 受信レポートをランダムに並べ替え
+    Shuffler->>Server: シャッフル後のリスト + シャッフル証明 π_shuffle
+
+    %%――― 検証＆集計フェーズ ―――
+    Server->>Server: π_shuffle の検証（順序付き置換の正当性検証）
+    Server->>Server: 各 π_auth の検証（入力真正性検証）
+    Server->>Server: プライバシー保証付き集計処理
+```
+
+- **エンティティ**
+    
+    - **Client（クライアント）**: ユーザーデータ xx を LDP 処理し、NIZK 証明を生成。
+        
+    - **Shuffler（シャッフラー）**: クライアントからのレポートを集約し、検証可能なシャッフルを実行。
+        
+    - **Server（サーバー）**: シャッフラーから届いた証明を検証し、差分プライバシー保護された集計を行う。
+        
+- **主な処理フェーズ**
+    
+    1. **セットアップ**: クライアントは自身のランダムシードをコミットし、サーバーは NIZK の公開パラメータを配布。
+        
+    2. **レポート生成＆送信**: クライアントはローカルで LDP ランダマイズし、入力真正性を示す NIZK 証明を付与してシャッフラーへ送信。
+        
+    3. **シャッフル**: シャッフラーは受信したレポートをランダムに並べ替え、その順序保持を証明する NIZK シャッフル証明を生成してサーバーへ。
+        
+    4. **検証＆集計**: サーバーはシャッフル証明と各クライアントの証明を検証後、安全に集計処理を実行。
+        
+
+この流れにより、悪意ある改ざんの防止（入力/出力操作攻撃耐性）と高いプライバシー増幅効果を両立した検証可能差分プライバシーを実現します。

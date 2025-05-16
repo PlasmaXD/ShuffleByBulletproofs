@@ -13,28 +13,41 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "0516/辞書.md",
+                "file": "0516/今後やろうとしていることまとめ（曖昧）.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "辞書"
+              "title": "今後やろうとしていることまとめ（曖昧）"
             }
           },
           {
             "id": "71238c90e9496b34",
             "type": "leaf",
             "state": {
+              "type": "markdown",
+              "state": {
+                "file": "0516/Rappor以外.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Rappor以外"
+            }
+          },
+          {
+            "id": "7df3a82435803849",
+            "type": "leaf",
+            "state": {
               "type": "pdf",
               "state": {
-                "file": "0516/CMS.pdf"
+                "file": "0516/CMS詳細.pdf"
               },
               "icon": "lucide-file-text",
-              "title": "CMS"
+              "title": "CMS詳細"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -107,7 +120,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "0516/CMS.pdf",
+                "file": "0516/今後やろうとしていることまとめ（曖昧）.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -117,7 +130,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for CMS"
+              "title": "Backlinks for 今後やろうとしていることまとめ（曖昧）"
             }
           },
           {
@@ -168,7 +181,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
+    "width": 200,
     "collapsed": true
   },
   "left-ribbon": {
@@ -181,17 +194,24 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "71238c90e9496b34",
+  "active": "2f97798e0c853fe6",
   "lastOpenFiles": [
-    "0516/辞書.md",
     "0516/CMS.pdf",
-    "0516/CMS0.pdf",
+    "0516/CMS詳細.pdf",
+    "0516/今後やろうとしていることまとめ（曖昧）.md",
+    "0516/CMS詳細.md",
+    "0516/CMS copy.md",
     "0516/VLDP.md",
+    "0516/辞書.md",
     "0516/Rappor以外.md",
+    "0516/ZKP設計Summary.md",
+    "0516/ZKP設計.md",
+    "0516/CMS2.pdf",
+    "0516/CMS.md",
+    "0516/CMS げら.md",
+    "0516/CMS0.pdf",
     "0516/2406.18940v2.pdf",
     "0516/ヒストグラム証明とシャッフル証明の違い.md",
-    "0516/ZKP設計.md",
-    "0516/ZKP設計Summary.md",
     "0516/新規性.md"
   ]
 }
