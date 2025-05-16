@@ -25,12 +25,12 @@
             "id": "71238c90e9496b34",
             "type": "leaf",
             "state": {
-              "type": "release-notes",
+              "type": "pdf",
               "state": {
-                "currentVersion": "1.8.10"
+                "file": "0516/CMS.pdf"
               },
-              "icon": "lucide-book-up",
-              "title": "Release Notes 1.8.10"
+              "icon": "lucide-file-text",
+              "title": "CMS"
             }
           }
         ],
@@ -107,7 +107,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "0516/辞書.md",
+                "file": "0516/CMS.pdf",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -117,7 +117,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for 辞書"
+              "title": "Backlinks for CMS"
             }
           },
           {
@@ -183,15 +183,15 @@
   },
   "active": "71238c90e9496b34",
   "lastOpenFiles": [
+    "0516/辞書.md",
+    "0516/CMS.pdf",
+    "0516/CMS0.pdf",
     "0516/VLDP.md",
     "0516/Rappor以外.md",
     "0516/2406.18940v2.pdf",
     "0516/ヒストグラム証明とシャッフル証明の違い.md",
     "0516/ZKP設計.md",
     "0516/ZKP設計Summary.md",
-    "0516/辞書.md",
-    "0516/新規性.md",
-    "0516/CMS.pdf",
-    "0516/CMS0.pdf"
+    "0516/新規性.md"
   ]
 }
