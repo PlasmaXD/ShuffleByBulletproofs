@@ -1,0 +1,183 @@
+{
+  "main": {
+    "id": "fabbf4984d31c19f",
+    "type": "split",
+    "children": [
+      {
+        "id": "26c28511622054e7",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "2f97798e0c853fe6",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "0516/辞書.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "辞書"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "b02d41f93b3b7a0b",
+    "type": "split",
+    "children": [
+      {
+        "id": "1da8636adc6df753",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "79d00a844851314e",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "d6b2bb715e9b7674",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "3fd68ca4742c8231",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 208.5
+  },
+  "right": {
+    "id": "68d5dbb95c150d11",
+    "type": "split",
+    "children": [
+      {
+        "id": "8891c06afa9c0ce1",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "e994741309ae2132",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "0516/辞書.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for 辞書"
+            }
+          },
+          {
+            "id": "cdc85d2b1876ef73",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "0516/辞書.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from 辞書"
+            }
+          },
+          {
+            "id": "ea60d937cea01900",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "812079aa6ae1953c",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "0516/辞書.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of 辞書"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false
+    }
+  },
+  "active": "2f97798e0c853fe6",
+  "lastOpenFiles": [
+    "0516/Rappor以外.md",
+    "0516/2406.18940v2.pdf",
+    "0516/ヒストグラム証明とシャッフル証明の違い.md",
+    "0516/ZKP設計.md",
+    "0516/ZKP設計Summary.md",
+    "0516/辞書.md",
+    "0516/新規性.md",
+    "0516/CMS.pdf",
+    "0516/CMS0.pdf"
+  ]
+}
