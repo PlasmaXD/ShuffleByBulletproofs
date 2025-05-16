@@ -282,3 +282,64 @@ CMS は線形スケッチであるため、分散環境で部分スケッチを�
 [7]: https://cs.stanford.edu/~rishig/courses/ref/l12b.pdf?utm_source=chatgpt.com "[PDF] CS 167 Paper Report"
 [8]: https://cs368-stanford.github.io/spring2022/lectures/lec8.pdf?utm_source=chatgpt.com "[PDF] Lecture 8: CR-PRECIS and Count Sketch - GitHub Pages"
 [9]: https://webdocs.cs.ualberta.ca/~drafiei/papers/cmm.pdf?utm_source=chatgpt.com "[PDF] New Estimation Algorithms for Streaming Data: Count-min Can Do ..."
+以下では、RAPPOR における Bloom フィルタエンコードから PRR、IRR、そしてサーバー側での逆推定までの一連の流れを示します ([research.google.com][1], [NDSS Symposium][2])。
+
+
+RAPPOR はクライアント側での文字列→ビット列変換と二段階のランダム化を経て報告を生成し、サーバー側で集計・推定を行います ([セマンティックスカラー][1], [florian.github.io][2])。具体的には、
+
+1. 入力文字列を複数のハッシュ関数で Bloom フィルタにマッピング
+2. フィルタに対して永続的ランダム化（Permanent Randomized Response; PRR）
+3. 報告ごとに即時ランダム化（Instantaneous Randomized Response; IRR）
+4. サーバー側で多数の報告を集約し、候補文字列集合（辞書）を用いてビットパターンを逆引きし頻度を推定
+
+という三段階＋集計から成り立ちます ([asecuritysite.com][3], [OpenReview][4])。また、推定には事前に「候補文字列」辞書が必要です ([petsymposium.org][5], [arXiv][6])。
+
+---
+
+## RAPPOR の処理フロー
+
+### 1. Bloom フィルタへのエンコード
+
+* 実際の文字列 $v$ を $h$ 本のハッシュ関数でハッシュし、長さ $k$ の Bloom フィルタ $B$ の対応ビットを 1 に設定する ([セマンティックスカラー][1])。
+
+### 2. 永続的ランダム化（PRR）
+
+* 各ビット $B[i]$ に対し、パラメータ $f$ を用いて永続的なランダム化を行い、ビット列 $B'$ を生成する ([セマンティックスカラー][1])。
+* 具体的には、元ビットが 1 のときは確率 $1 - f$ で 1 を維持、$f/2$ で 1→0、同様に 0 のときも確率 $f/2$ で 0→1 にフリップする ([asecuritysite.com][3])。
+
+### 3. 即時ランダム化（IRR）
+
+* 各報告ごとに、PRR の結果ビット $B'[i]$ を更にパラメータ $p, q$ に基づいてランダム化し、最終報告ビット $S[i]$ を生成する ([florian.github.io][2])。
+* $B'[i]=1$ の場合は確率 $q$ で 1 を、$(1-q)$ で 0 を報告。$B'[i]=0$ の場合は確率 $p$ で 1 を、$(1-p)$ で 0 を報告。
+
+### 4. サーバー側での集計・推定
+
+* クライアントから多数の $S$ ベクトルを受信し、各ビット位置ごとの 1 の出現頻度を集計する ([OpenReview][4])。
+* 事前に用意した候補文字列辞書内の各文字列について Bloom フィルタを同様に生成し、期待統計量との一致度を EM 等で逆推定し頻度を求める ([petsymposium.org][5], [arXiv][6])。
+
+---
+
+## 辞書の必要性とその理由
+
+### なぜ辞書が必要か
+
+* サーバーは観測された集計ビット列から「どの文字列がどれだけ出現したか」を推定する際、候補となる文字列集合をあらかじめ保持し、それぞれの Bloom 表現を比較する必要があるため ([petsymposium.org][5], [arXiv][6])。
+* Bloom フィルタ自体は「集合判定」に特化しており、未知の文字列を自動的に列挙する機能はないため、候補リストがなければ復号不能 ([asecuritysite.com][3], [arXiv][7])。
+
+### 辞書不要化の拡張研究
+
+* 後続研究「Building a RAPPOR with the Unknown」などでは、n-gram の共起情報から辞書を動的に構築し未知文字列を推定する手法が提案されている ([petsymposium.org][5], [Google Research][8])。
+* しかし、オリジナルの RAPPOR メカニズム自体は必ず既知辞書を前提として設計されている。
+
+---
+
+以上より、**オリジナルの RAPPOR** では必ず**候補文字列の辞書**をサーバー側で持つ必要があります。辞書なしで推定を行うには、拡張アルゴリズムや未知辞書構築手法が別途必要です。
+
+[1]: https://pdfs.semanticscholar.org/884b/9bf7dbe10f0a09e77ad8e33b4e534ecdc172.pdf?utm_source=chatgpt.com "[PDF] Randomized Aggregatable Privacy- Preserving Ordinal Response"
+[2]: https://florian.github.io/differential-privacy/?utm_source=chatgpt.com "Differential Privacy"
+[3]: https://asecuritysite.com/encryption/rap?utm_source=chatgpt.com "RAPPOR - Asecuritysite.com"
+[4]: https://openreview.net/pdf?id=5SyprRo4Bt&utm_source=chatgpt.com "[PDF] LEARNING WITH DIFFERENTIAL PRIVACY - OpenReview"
+[5]: https://petsymposium.org/2016/files/papers/Building_a_RAPPOR_with_the_Unknown__Privacy-Preserving_Learning_of_Associations_and_Data_Dictionaries.pdf?utm_source=chatgpt.com "[PDF] Privacy-Preserving Learning of Associations and Data Dictionaries"
+[6]: https://arxiv.org/pdf/1503.01214?utm_source=chatgpt.com "[PDF] Building a RAPPOR with the Unknown: - arXiv"
+[7]: https://arxiv.org/abs/1407.6981?utm_source=chatgpt.com "RAPPOR: Randomized Aggregatable Privacy-Preserving Ordinal ..."
+[8]: https://research.google/pubs/building-a-rappor-with-the-unknown-privacy-preserving-learning-of-associations-and-data-dictionaries/?utm_source=chatgpt.com "Building a RAPPOR with the Unknown: Privacy-Preserving Learning ..."
