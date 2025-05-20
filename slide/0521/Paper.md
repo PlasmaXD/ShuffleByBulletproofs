@@ -452,4 +452,3 @@ D.2 **最適化および代替案**
 \[2] Martin Albrecht, Lorenzo Grassi, Christian Rechberger, Arnab Roy, and Tyge Tiessen. 2016. *MiMC: Efficient Encryption and Cryptographic Hashing with Minimal Multiplicative Complexity*. In Advances in Cryptology – ASIACRYPT 2016, 191–219.
 …
 
-以降、文献リストは原文の英語表記を維持しています。
